@@ -1,5 +1,5 @@
-import { Game } from "../../util/Game";
-import { findGame, findGameOfPlayer, games, pushGame, removeGame, revealHint } from "../../util/GameManager";
+import { Round } from "../../util/Round";
+import { findGame, findGameOfPlayer, games, pushGame, removeGame, revealHint } from "../../util/RoundManager";
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { TaskTimer } from "tasktimer";
 
@@ -27,7 +27,7 @@ module.exports = {
 		if (findGame(senderId) == null && findGameOfPlayer(senderId) == null) {
 			const privateGame = <boolean>interaction.options.get("private", true).value;
 			const difficulty: string = <any>interaction.options.get("difficulty", true).value;
-			let game = new Game(senderId, privateGame, interaction.channelId);
+			let game = new Round(senderId, privateGame, interaction.channelId);
 
 			pushGame(game);
 			game.start(difficulty);

@@ -1,4 +1,4 @@
-import { findGameOfPlayer } from "../../util/GameManager";
+import { findGameOfPlayer } from "../../util/RoundManager";
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 
 module.exports = {

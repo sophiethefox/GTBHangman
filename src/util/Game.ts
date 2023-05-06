@@ -1,75 +1,70 @@
-const WordList = require("../../words.json");
+import { client } from "./../index";
+import { ThreadChannel } from "discord.js";
+import { GameRound } from "./GameRound";
+import { endGame, getCurrentRound } from "./GameManager";
 
 export class Game {
-	hostId: string;
 	privateGame: boolean;
-	channelId: string;
-	selectedTheme: string;
-	revealedLetters: Number[] = [];
-	started = false;
-	players: string[];
-	starttime: string;
+	startTime: string;
+	rounds: GameRound[] = [];
+	currentRound: number = 0;
+	hostId: string;
+	threadId: string;
+	ended = false;
 
-	constructor(hostID: string, privateGame: boolean, channelId: string) {
-		this.hostId = hostID;
+	leaderboard: [{ id: string; points: number }?] = [];
+
+	// roundCount: number;
+	constructor(hostId: string, privateGame: boolean, roundCount: number, difficulty: string, threadId: string) {
+		this.hostId = hostId;
 		this.privateGame = privateGame;
-		this.players = [hostID];
-		this.channelId = channelId;
+		this.threadId = threadId;
+
+		for (let i = 0; i < roundCount; i++) {
+			let round: GameRound = new GameRound(threadId, difficulty, i);
+			this.rounds.push(round);
+		}
 	}
 
-	start(difficulty: string) {
-		if (difficulty == "any") {
-			this.selectedTheme = titleCase(WordList.words[Math.floor(Math.random() * WordList.words.length)]);
-		} else if (difficulty == "easy") {
-			let easyThemes = WordList.words.filter((word: string) => word.length <= 5);
-			this.selectedTheme = titleCase(easyThemes[Math.floor(Math.random() * easyThemes.length)]);
-		} else if (difficulty == "medium") {
-			let easyThemes = WordList.words.filter((word: string) => word.length > 5 && word.length < 9);
-			this.selectedTheme = titleCase(easyThemes[Math.floor(Math.random() * easyThemes.length)]);
-		} else if (difficulty == "hard") {
-			let easyThemes = WordList.words.filter((word: string) => word.length >= 9);
-			this.selectedTheme = titleCase(easyThemes[Math.floor(Math.random() * easyThemes.length)]);
+	async start() {
+		this.startTime = Date.now().toString();
+
+		const queue: GameRound[] = [...this.rounds];
+		while (queue.length > 0) {
+			if (this.ended) {
+				queue.length = 0;
+				return;
+			}
+			const round: GameRound = <any>queue.shift();
+			this.currentRound = round.index;
+			await round!.start();
 		}
 
-		this.started = true;
-		this.starttime = Date.now().toString();
-
-		return this.selectedTheme;
-	}
-
-	guess(guess: string) {
-		let formattedGuess = minimise(guess);
-		let formattedTheme = minimise(this.selectedTheme);
-
-		return formattedGuess == formattedTheme;
-	}
-
-	getHint() {
-		let hintArray = this.selectedTheme.split("");
-		for (let i = 0; i < hintArray.length; i++) {
-			if (this.revealedLetters.includes(i)) {
-				continue;
-			}
-			if (hintArray[i] != " ") {
-				hintArray[i] = "_";
-			}
+		// ended can only be set to true from inside endGame.
+		if (!this.ended) {
+			await endGame(this.threadId);
 		}
-		return hintArray.join(" ");
+
+		// const channel = <ThreadChannel>await client.channels.fetch(this.threadId);
+		// this.leaderboard.sort((a, b) => {
+		// 	return b!.points - a!.points;
+		// });
+		// let leaderboardString = "";
+		// this.leaderboard.forEach((player) => {
+		// 	leaderboardString += `${player?.id}: ${player?.points}`;
+		// });
+		// channel.send(`Leaderboard: \n\`\`\`${leaderboardString}\`\`\``);
+		// channel.send("Closing thread in 10s");
+		// await new Promise((r) => setTimeout(r, 10000));
+		// channel.setArchived(true);
 	}
 
-	getDuration() {
-		return Math.floor((Date.now() - Number(this.starttime)) / 1000);
+	end() {
+		getCurrentRound(this.threadId).endRound();
+		this.ended = true;
 	}
-}
 
-function titleCase(str: string) {
-	return str
-		.toLowerCase()
-		.split(" ")
-		.map((word) => word.charAt(0).toUpperCase() + word.substring(1))
-		.join(" ");
-}
-
-function minimise(str: string) {
-	return str.toLowerCase().replaceAll(" ", "").trim();
+	async updateGuesses() {
+		this.rounds[this.currentRound].checkIfAllGuessed();
+	}
 }
