@@ -1,9 +1,9 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { endGame, findFullGame, getCurrentRound, isHostingGame, isInGame } from "../../util/GameManager";
+import { endGame, isHostingGame, isInGame } from "../../util/GameManager";
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("endgamefull")
+		.setName("endgame")
 		.setDescription("End your current game of GTB Hangman. Restricted to host."),
 	async execute(interaction: CommandInteraction) {
 		if (!isInGame(interaction)) {

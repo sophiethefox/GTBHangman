@@ -1,8 +1,7 @@
 import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from "discord.js";
-import { token, clientId, guildId, testtoken, testClientId, test } from "./config.json";
+import { token, clientId } from "./config.json";
 import * as fs from "fs";
 import * as path from "path";
-import { findGameOfPlayer, removeGame } from "./util/RoundManager";
 import { addPoints, findFullGame, fullGuess, isInGame } from "./util/GameManager";
 export const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages]
@@ -28,53 +27,18 @@ for (const folder of commandFolders) {
 	}
 }
 
-// DEV ENV
-
-if (test) {
-	const rest = new REST().setToken(testtoken);
-	(async () => {
-		try {
-			console.log(`Started refreshing ${commands.length} guild (/) commands.`);
-			const data: any = await rest.put(Routes.applicationGuildCommands(testClientId, guildId), {
-				body: commands
-			});
-			console.log(`Successfully reloaded ${data.length} guild (/) commands.`);
-		} catch (error) {
-			console.error(error);
-		}
-	})();
-} else {
-	const rest = new REST().setToken(testtoken);
-	(async () => {
-		try {
-			console.log(`Started refreshing ${commands.length} application (/) commands.`);
-			const data: any = await rest.put(Routes.applicationCommands(clientId), { body: commands });
-			console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-		} catch (error) {
-			console.error(error);
-		}
-	})();
-}
-
-// const rest = new REST().setToken(token);
-// (async () => {
-// 	try {
-// 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
-// 		const data: any = await rest.put(Routes.applicationCommands(clientId), { body: commands });
-// 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-// 	} catch (error) {
-// 		console.error(error);
-// 	}
-// })();
-
-// rest.get(Routes.applicationCommands(clientId)).then((data: any) => {
-// 	const promises = [];
-// 	for (const command of data) {
-// 		const deleteUrl: any = `${Routes.applicationCommands(clientId)}/${command.id}`;
-// 		promises.push(rest.delete(deleteUrl));
-// 	}
-// 	return Promise.all(promises);
-// });
+const rest = new REST().setToken(token);
+(async () => {
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
+		const data: any = await rest.put(Routes.applicationCommands(clientId), {
+			body: commands
+		});
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		console.error(error);
+	}
+})();
 
 client.on(Events.InteractionCreate, async (interaction) => {
 	if (!interaction.isChatInputCommand()) return;
@@ -105,12 +69,14 @@ client.once(Events.ClientReady, (c) => {
 	console.log(`Logged in as ${c.user.tag}`);
 });
 
-if (test) {
-	client.login(testtoken);
+client.login(token);
 
-	client.on("messageCreate", async (message) => {
-		if (message.author.bot) return;
-		if (isInGame(message)) {
+client.on("messageCreate", async (message) => {
+	if (message.author.bot) return;
+	if (isInGame(message)) {
+		const game = findFullGame(message.channel!.id);
+
+		if ((game!.privateGame && message.author.id == game!.hostId) || !game?.privateGame) {
 			const guess = fullGuess(message);
 			if (guess?.correct) {
 				let points = 0;
@@ -128,36 +94,8 @@ if (test) {
 				await message.channel.send(`${message.author.tag} Guessed Correctly!`);
 				message.reply(`Correct! +${points} points`);
 
-				const game = findFullGame(message.channel.id);
 				game?.updateGuesses();
 			}
 		}
-	});
-} else {
-	client.login(token);
-
-	client.on("messageCreate", (message) => {
-		const senderId = message.author.id;
-		const game = findGameOfPlayer(senderId);
-		const guess = message.content;
-
-		if (game == null) {
-			return;
-		}
-
-		if (message.channelId != game.channelId) return;
-
-		if (game!.guess(guess)) {
-			message.reply({
-				content: `<@${senderId}> guessed the theme correctly! The theme was: \`${
-					game.selectedTheme
-				}\`. Duration: ${game.getDuration()}s`,
-				allowedMentions: { users: [] }
-			});
-			removeGame(game.hostId);
-		} else {
-			message.reply({ content: "Incorrect!", allowedMentions: { users: [] } });
-			return;
-		}
-	});
-}
+	}
+});

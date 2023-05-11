@@ -3,7 +3,7 @@ import { getCurrentRound, isInGame } from "../../util/GameManager";
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("revealhintfull")
+		.setName("revealhint")
 		.setDescription("Reveals one letter of your current game. Restricted to host."),
 	async execute(interaction: CommandInteraction) {
 		if (!isInGame(interaction)) {

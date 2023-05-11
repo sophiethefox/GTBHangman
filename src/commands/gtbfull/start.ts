@@ -3,7 +3,7 @@ import { createGame, isHostingGame, startGame } from "../../util/GameManager";
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("startfull")
+		.setName("start")
 		.setDescription("Start a game of GTB Hangman")
 		.addStringOption((option) =>
 			option

@@ -170,7 +170,7 @@ function titleCase(str: string) {
 		.join(" ");
 }
 
-function minimise(str: string) {
+export function minimise(str: string) {
 	return str.toLowerCase().replaceAll(" ", "").trim();
 }
 

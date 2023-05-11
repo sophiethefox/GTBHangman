@@ -122,7 +122,10 @@ async function endGame(interaction: string | CommandInteraction) {
 	Games = Games.filter((g) => g.threadId != channel.id);
 
 	await new Promise((r) => setTimeout(r, 10000));
-	channel!.setArchived(true);
+	if (channel!.isThread()) {
+		channel.delete();
+	}
+	// channel!.setArchived(true);
 }
 
 export { createGame, startGame, findFullGame, fullGuess, addPoints, isInGame, isHostingGame, getCurrentRound, endGame };

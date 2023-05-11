@@ -3,7 +3,7 @@ import { getCurrentRound, isHostingGame, isInGame } from "../../util/GameManager
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("endroundfull")
+		.setName("endround")
 		.setDescription("End your current round of GTB Hangman. Restricted to host."),
 	async execute(interaction: CommandInteraction) {
 		if (!isInGame(interaction)) {
