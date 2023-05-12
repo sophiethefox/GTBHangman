@@ -16,7 +16,7 @@ module.exports = {
 			const theme = <string>interaction.options.get("theme", true).value;
 			const json = readFileSync("words.json", "utf8");
 			const jsonObj = JSON.parse(json);
-			jsonObj.words = jsonObj.words.filter((word: string) => minimise(word) !== minimise(theme));
+			jsonObj.words = jsonObj.words.filter((word: string) => word.toLowerCase() !== theme.toLowerCase());
 			writeFileSync("words.json", JSON.stringify(jsonObj));
 			interaction.reply("Removed theme!");
 		} else {
