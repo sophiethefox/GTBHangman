@@ -70,7 +70,9 @@ export class GameRound {
 
 			try {
 				await this.sleepOrCancel();
-			} catch (e) {}
+			} catch (e) {
+				console.log(e);
+			}
 		}
 
 		resolve();
@@ -125,6 +127,10 @@ export class GameRound {
 	}
 
 	revealHint() {
+		if (this.revealedLetters.length == minimise(this.selectedTheme).length - 1) {
+			return "ERROR: MAX HINTS REVEALED";
+		}
+
 		let excludedIndicies: Number[] = [];
 		for (let i = 0; i < this.selectedTheme.length; i++) {
 			if (this.selectedTheme[i] === " ") excludedIndicies.push(i);

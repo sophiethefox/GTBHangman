@@ -1,7 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 import { readFileSync, writeFileSync } from "fs";
-import { minimise } from "../../util/GameRound";
-import { resolve } from "path";
 
 module.exports = {
 	data: new SlashCommandBuilder()
