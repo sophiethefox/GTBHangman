@@ -25,14 +25,15 @@ module.exports = {
 		),
 	async execute(interaction: CommandInteraction) {
 		const senderId = interaction.user.id;
+		await interaction.deferReply();
 
 		if (interaction.channel!.isThread()) {
-			interaction.reply("In a game thread!");
+			interaction.editReply("In a game thread!");
 			return;
 		}
 
 		if (isHostingGame(senderId)) {
-			interaction.reply("You are already hosting a game!");
+			interaction.editReply("You are already hosting a game!");
 			return;
 		}
 
@@ -42,7 +43,7 @@ module.exports = {
 
 		const game = await createGame(senderId, privateGame, rounds, difficulty, interaction);
 		if (game == null) throw "Already in a thread";
-		interaction.reply(`Created game <#${game}>`);
+		interaction.editReply(`Created game <#${game}>`);
 		startGame(game);
 	}
 };

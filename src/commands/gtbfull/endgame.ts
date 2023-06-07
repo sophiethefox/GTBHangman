@@ -6,14 +6,15 @@ module.exports = {
 		.setName("endgame")
 		.setDescription("End your current game of GTB Hangman. Restricted to host."),
 	async execute(interaction: CommandInteraction) {
+		await interaction.deferReply();
 		if (!isInGame(interaction)) {
-			await interaction.reply("Not in a game thread!");
+			await interaction.editReply("Not in a game thread!");
 			return;
 		}
 
 		if (isHostingGame(interaction.user.id)) {
 			endGame(interaction);
-			interaction.reply("Ended game");
+			interaction.editReply("Ended game");
 		}
 	}
 };

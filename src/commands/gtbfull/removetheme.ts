@@ -10,15 +10,17 @@ module.exports = {
 		const userId = interaction.user.id;
 		const permittedUsers = ["202666531111436288", "279741994908254209", "300533457598021632", "963506752706478090"];
 
+		await interaction.deferReply();
+
 		if (permittedUsers.includes(userId)) {
 			const theme = <string>interaction.options.get("theme", true).value;
 			const json = readFileSync("words.json", "utf8");
 			const jsonObj = JSON.parse(json);
 			jsonObj.words = jsonObj.words.filter((word: string) => word.toLowerCase() !== theme.toLowerCase());
 			writeFileSync("words.json", JSON.stringify(jsonObj));
-			interaction.reply("Removed theme!");
+			interaction.editReply("Removed theme!");
 		} else {
-			interaction.reply({ content: `No permission.`, ephemeral: true });
+			interaction.editReply(`No permission.`);
 		}
 	}
 };

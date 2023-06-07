@@ -6,13 +6,14 @@ module.exports = {
 		.setName("revealhint")
 		.setDescription("Reveals one letter of your current game. Restricted to host."),
 	async execute(interaction: CommandInteraction) {
+		await interaction.deferReply();
 		if (!isInGame(interaction)) {
-			await interaction.reply("Not in a game thread!");
+			await interaction.editReply("Not in a game thread!");
 			return;
 		}
 
 		const round = getCurrentRound(interaction.channel!.id);
 		const hint = round.revealHint();
-		interaction.reply(`Hint: \`${hint}\`.  \`${round.selectedTheme.length}\` characters.`);
+		interaction.editReply(`Hint: \`${hint}\`.  \`${round.selectedTheme.length}\` characters.`);
 	}
 };

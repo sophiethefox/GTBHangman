@@ -7,15 +7,16 @@ module.exports = {
 		.setDescription("Guesses a theme in your current game")
 		.addStringOption((option) => option.setName("guess").setDescription("Theme to guess").setRequired(true)),
 	async execute(interaction: CommandInteraction) {
+		await interaction.deferReply({ ephemeral: true });
 		if (!isInGame(interaction)) {
-			await interaction.reply("Not in a game thread!");
+			await interaction.editReply("Not in a game thread!");
 			return;
 		}
 
 		// if(interaction.user.id )
 		const game = findFullGame(interaction.channel!.id);
 		if (game!.privateGame && interaction.user.id != game!.hostId) {
-			return await interaction.reply({ content: `This game is private.`, ephemeral: true });
+			return await interaction.editReply(`This game is private.`);
 		}
 
 		const guess = fullGuess(interaction);
@@ -33,11 +34,11 @@ module.exports = {
 			addPoints(interaction, points);
 
 			await interaction.channel?.send(`${interaction.user.tag} Guessed Correctly!`);
-			interaction.reply({ content: `Correct! +${points} points`, ephemeral: true });
+			interaction.editReply(`Correct! +${points} points`);
 
 			game?.updateGuesses();
 		} else {
-			interaction.reply({ content: "Incorrect", ephemeral: true });
+			interaction.editReply("Incorrect");
 		}
 	}
 };
