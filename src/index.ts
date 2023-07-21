@@ -7,6 +7,8 @@ export const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages]
 });
 
+let wordList: string[] = [];
+
 client.commands = new Collection();
 const commands = [];
 const foldersPath = path.join(__dirname, "commands");
@@ -99,3 +101,34 @@ client.on("messageCreate", async (message) => {
 		}
 	}
 });
+
+export async function getWordList(): Promise<string[]> {
+	if (wordList.length > 0) {
+		return wordList;
+	} else {
+		let getThemesRes = await fetch("https://cors-proxy.regexmc-noirlskills.workers.dev/getAllThemes", {
+			body: "{}",
+			method: "POST"
+		});
+		let getThemesJson = await getThemesRes.json();
+		wordList = getThemesJson.map((theme: any) => theme.theme);
+		console.log(wordList);
+		console.log("Fetched new WordList");
+		return wordList;
+	}
+}
+
+export async function reloadWordList() {
+	let getThemesRes = await fetch("https://cors-proxy.regexmc-noirlskills.workers.dev/getAllThemes", {
+		body: "{}",
+		method: "POST"
+	});
+	let getThemesJson = await getThemesRes.json();
+	let oldWordlist = wordList;
+	wordList = getThemesJson.map((theme: any) => theme.theme);
+	// Prints Difference
+	console.log(
+		oldWordlist.filter((x) => !wordList.includes(x)).concat(wordList.filter((x) => !oldWordlist.includes(x)))
+	);
+	console.log("Reloaded WordList");
+}

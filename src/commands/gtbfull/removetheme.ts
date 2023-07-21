@@ -1,5 +1,4 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { readFileSync, writeFileSync } from "fs";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -12,15 +11,6 @@ module.exports = {
 
 		await interaction.deferReply();
 
-		if (permittedUsers.includes(userId)) {
-			const theme = <string>interaction.options.get("theme", true).value;
-			const json = readFileSync("words.json", "utf8");
-			const jsonObj = JSON.parse(json);
-			jsonObj.words = jsonObj.words.filter((word: string) => word.toLowerCase() !== theme.toLowerCase());
-			writeFileSync("words.json", JSON.stringify(jsonObj));
-			interaction.editReply("Removed theme!");
-		} else {
-			interaction.editReply(`No permission.`);
-		}
+		interaction.editReply("Removed command (Temporarily:tm:). Ping developer.");
 	}
 };

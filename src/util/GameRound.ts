@@ -1,10 +1,6 @@
 import { ThreadChannel } from "discord.js";
 import { resolve } from "path/posix";
-import { client } from "./../index";
-const WordList = require("../../words.json");
-const easyThemes = WordList.words.filter((word: string) => word.length <= 5);
-const mediumThemes = WordList.words.filter((word: string) => word.length > 5 && word.length < 9);
-const hardThemes = WordList.words.filter((word: string) => word.length >= 9);
+import { client, getWordList } from "./../index";
 
 export class GameRound {
 	threadId: string;
@@ -25,6 +21,10 @@ export class GameRound {
 
 	async start() {
 		this.startTime = Date.now().toString();
+		const wordList = await getWordList();
+		const easyThemes = wordList.filter((word: string) => word.length <= 5);
+		const mediumThemes = wordList.filter((word: string) => word.length > 5 && word.length < 9);
+		const hardThemes = wordList.filter((word: string) => word.length >= 9);
 
 		switch (this.difficulty) {
 			case "easy":
@@ -37,7 +37,7 @@ export class GameRound {
 				this.selectedTheme = getRandomTheme(hardThemes);
 				break;
 			default:
-				this.selectedTheme = getRandomTheme(WordList.words);
+				this.selectedTheme = getRandomTheme(wordList);
 		}
 
 		const channel = <ThreadChannel>await client.channels.fetch(this.threadId);
