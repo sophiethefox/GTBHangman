@@ -53,7 +53,7 @@ export class GameRound {
 
 			if (step == 0) {
 				channel.send(
-					`Hint: \`${this.getHint()}\`. \`${this.selectedTheme.length}\` characters. \`${
+					`Hint: \`${this.revealHint()}\`. \`${this.selectedTheme.length}\` characters. \`${
 						120 - step * 30
 					}s\` remaining`
 				);
