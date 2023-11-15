@@ -36,7 +36,7 @@ function fullGuess(message: Message | CommandInteraction) {
 		const round = getCurrentRound(threadId);
 
 		const correctGuess = round.guess(message.content);
-		if (!round.guesses.includes(message.author.id)) {
+		if (!round.guesses.includes(message.author.id) && correctGuess) {
 			round.guesses.push(message.author.id);
 		}
 		return { correct: correctGuess, position: round.guesses.indexOf(message.author.id) };
@@ -47,7 +47,7 @@ function fullGuess(message: Message | CommandInteraction) {
 		const round = getCurrentRound(threadId);
 
 		const correctGuess = round.guess(<string>message.options.get("guess", true).value);
-		if (!round.guesses.includes(message.user.id)) {
+		if (!round.guesses.includes(message.user.id) && correctGuess) {
 			round.guesses.push(message.user.id);
 		}
 		return { correct: correctGuess, position: round.guesses.indexOf(message.user.id) };
