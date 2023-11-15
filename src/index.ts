@@ -2,7 +2,7 @@ import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from "dis
 import { token, clientId } from "./config.json";
 import * as fs from "fs";
 import * as path from "path";
-import { addPoints, findFullGame, fullGuess, isInGame } from "./util/GameManager";
+import { addPoints, findFullGame, fullGuess, getCurrentRound, isInGame } from "./util/GameManager";
 export const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages]
 });
@@ -77,8 +77,12 @@ client.on("messageCreate", async (message) => {
 	if (message.author.bot) return;
 	if (isInGame(message)) {
 		const game = findFullGame(message.channel!.id);
+		const threadId = message.channel.id;
+		const round = getCurrentRound(threadId);
 
 		if ((game!.privateGame && message.author.id == game!.hostId) || !game?.privateGame) {
+			if (round.guesses.includes(message.author.id)) return;
+
 			const guess = fullGuess(message);
 			if (guess?.correct) {
 				let points = 0;

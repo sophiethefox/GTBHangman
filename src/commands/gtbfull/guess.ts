@@ -1,5 +1,5 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { addPoints, findFullGame, fullGuess, isInGame } from "../../util/GameManager";
+import { addPoints, findFullGame, fullGuess, getCurrentRound, isInGame } from "../../util/GameManager";
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -17,6 +17,14 @@ module.exports = {
 		const game = findFullGame(interaction.channel!.id);
 		if (game!.privateGame && interaction.user.id != game!.hostId) {
 			return await interaction.editReply(`This game is private.`);
+		}
+
+		const threadId = interaction.channel?.id;
+		if (!threadId) return await interaction.editReply("Error occured idk");
+		const round = getCurrentRound(threadId);
+
+		if (round.guesses.includes(interaction.user.id)) {
+			return await interaction.editReply("You have already guessed correctly this round");
 		}
 
 		const guess = fullGuess(interaction);
